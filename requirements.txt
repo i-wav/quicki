@@ -1,0 +1,9 @@
+pandas 
+catboost 
+scikit-learn
+fastapi or flask 
+uvicorn 
+joblib 
+redis 
+sqlalchemy 
+streamlit
