@@ -4,7 +4,7 @@ import pandas as pd
 from catboost import CatBoostClassifier
 
 # --- LOAD TRAINED MODEL ---
-MODEL_PATH = "catboost_upi_fraud_model.cbm"  # your saved model
+MODEL_PATH = "src/model/catboost_upi_fraud_model.cbm"  # your saved model
 model = CatBoostClassifier()
 model.load_model(MODEL_PATH)
 
