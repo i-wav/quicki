@@ -1,0 +1,1 @@
+["Amount_INR", "Transaction_Type", "Merchant_Category", "Channel", "Device_Type", "IP_Risk_Score", "Account_Age_Days", "Num_Txns_Last_24H", "Avg_Amount_Last_7d", "Prev_Fraud_Count_Sender", "Prev_Fraud_Count_Receiver", "Is_Night_Txn", "Device_Change_Flag"]
