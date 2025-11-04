@@ -83,47 +83,73 @@ device_change_flag = 1 if device_change_flag_input == "Yes" else 0
 
 transaction_note = st.text_input("Transaction Note", "payment")
 
+# --- VALIDATION CHECKS ---
+required_fields = {
+    "Amount": amount,
+    "Transaction Type": txn_type,
+    "Merchant Category": merchant_cat,
+    "Channel": channel,
+    "Device Type": device_type,
+    "Device ID": device_id,
+    "Transaction Date": txn_date,
+    "Transaction Time": txn_time,
+    "Sender Age": sender_age,
+    "Sender Bank": sender_bank,
+    "Receiver Bank": receiver_bank,
+    "City": city,
+    "Account Age (days)": account_age_days,
+    "No. of Txns in last 24h": num_txns_last_24h,
+    "Avg Amount (last 7 days)": avg_amt_last_7d,
+    "Previous Fraud Count (Sender)": prev_fraud_sender,
+    "Previous Fraud Count (Receiver)": prev_fraud_receiver,
+    "Transaction Note": transaction_note,
+}
+
+missing_fields = [name for name, value in required_fields.items() if value in [None, ""]]
+
 if st.button(" Detect Fraud"):
-
-    new_txn = {
-        'Sender_UPI_ID': sender_upi,
-        'Receiver_UPI_ID': receiver_upi,
-        'Amount_INR': amount,
-        'Transaction_Type': txn_type,
-        'Merchant_Category': merchant_cat,
-        'Channel': channel,
-        'Device_Type': device_type,
-        'Device_ID': device_id,
-        'IP_Risk_Score': 0.0,
-        'City': city,
-        'Sender_Age_Group': sender_age_group,
-        'Sender_Bank': sender_bank,
-        'Receiver_Bank': receiver_bank,
-        'Account_Age_Days': int(account_age_days),
-        'Num_Txns_Last_24H': int(num_txns_last_24h),
-        'Avg_Amount_Last_7d': float(avg_amt_last_7d),
-        'Prev_Fraud_Count_Sender': int(prev_fraud_sender),
-        'Prev_Fraud_Count_Receiver': int(prev_fraud_receiver),
-        'Transaction_Note': transaction_note,
-        'Is_Night_Txn': int(is_night_txn),
-        'Device_Change_Flag': int(device_change_flag)
-    }
-
-    input_df = pd.DataFrame([new_txn])
-    for col in categorical_cols:
-        input_df[col] = input_df[col].astype(str)
-    input_df = input_df[feature_columns]
-
-    fraud_prob = float(model.predict_proba(input_df)[:, 1][0])
-    fraud_label = int(model.predict(input_df)[0])
-
-    st.subheader("Prediction Results")
-    st.write(f"**Fraud Probability:** {fraud_prob:.4f}")
-    st.write(f"**Predicted Label:** {' Fraudulent' if fraud_label == 1 else ' Legitimate'}")
-
-    if fraud_label == 1:
-        st.error(" High likelihood of fraud detected! Please verify this transaction.")
+    if missing_fields:
+        st.error(f"Please fill in all required fields before detecting fraud. Missing: {', '.join(missing_fields)}")
     else:
-        st.success(" Transaction appears legitimate.")
+        new_txn = {
+            'Sender_UPI_ID': sender_upi,
+            'Receiver_UPI_ID': receiver_upi,
+            'Amount_INR': amount,
+            'Transaction_Type': txn_type,
+            'Merchant_Category': merchant_cat,
+            'Channel': channel,
+            'Device_Type': device_type,
+            'Device_ID': device_id,
+            'IP_Risk_Score': 0.0,
+            'City': city,
+            'Sender_Age_Group': sender_age_group,
+            'Sender_Bank': sender_bank,
+            'Receiver_Bank': receiver_bank,
+            'Account_Age_Days': int(account_age_days),
+            'Num_Txns_Last_24H': int(num_txns_last_24h),
+            'Avg_Amount_Last_7d': float(avg_amt_last_7d),
+            'Prev_Fraud_Count_Sender': int(prev_fraud_sender),
+            'Prev_Fraud_Count_Receiver': int(prev_fraud_receiver),
+            'Transaction_Note': transaction_note,
+            'Is_Night_Txn': int(is_night_txn),
+            'Device_Change_Flag': int(device_change_flag)
+        }
 
-    st.caption(f"Transaction evaluated for {txn_date} at {txn_time.strftime('%H:%M')} hrs.")
+        input_df = pd.DataFrame([new_txn])
+        for col in categorical_cols:
+            input_df[col] = input_df[col].astype(str)
+        input_df = input_df[feature_columns]
+
+        fraud_prob = float(model.predict_proba(input_df)[:, 1][0])
+        fraud_label = int(model.predict(input_df)[0])
+
+        st.subheader("Prediction Results")
+        st.write(f"**Fraud Probability:** {fraud_prob:.4f}")
+        st.write(f"**Predicted Label:** {' Fraudulent' if fraud_label == 1 else ' Legitimate'}")
+
+        if fraud_label == 1:
+            st.error(" High likelihood of fraud detected! Please verify this transaction.")
+        else:
+            st.success(" Transaction appears legitimate.")
+
+        st.caption(f"Transaction evaluated for {txn_date} at {txn_time.strftime('%H:%M')} hrs.")
